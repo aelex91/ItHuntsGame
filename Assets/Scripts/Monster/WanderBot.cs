@@ -3,6 +3,9 @@ using UnityEngine.AI;
 
 public class WanderBot : MonoBehaviour
 {
+
+    private Animator _animator;
+
     public float wanderRadius = 10f;
     public float wanderTimer = 5f;
 
@@ -18,6 +21,7 @@ public class WanderBot : MonoBehaviour
 
     void Start()
     {
+        _animator = GetComponentInChildren<Animator>();
         agent = GetComponent<NavMeshAgent>();
         agent.speed = wanderSpeed;
         timer = wanderTimer;
@@ -26,7 +30,7 @@ public class WanderBot : MonoBehaviour
     void Update()
     {
         float distance = Vector3.Distance(transform.position, player.position);
-
+        _animator.SetBool("IsWalking", true);
         if (distance <= detectionRange)
         {
             if (!isChasing)
@@ -34,14 +38,18 @@ public class WanderBot : MonoBehaviour
                 isChasing = true;
                 agent.speed = chaseSpeed;
                 Debug.Log("Player spotted — chasing!");
+                _animator.SetBool("IsChasing", isChasing);
             }
 
             agent.SetDestination(player.position);
+
         }
         else
         {
             if (isChasing)
             {
+                _animator.SetBool("IsChasing", isChasing);
+                _animator.SetBool("IsWalking", true);
                 isChasing = false;
                 agent.speed = wanderSpeed;
                 timer = wanderTimer;
@@ -53,6 +61,7 @@ public class WanderBot : MonoBehaviour
             {
                 Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
                 agent.SetDestination(newPos);
+                _animator.SetBool("IsWalking", false);
                 timer = 0;
             }
         }
