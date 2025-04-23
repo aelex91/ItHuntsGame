@@ -9123,7 +9123,7 @@ MonoBehaviour:
   blackoutDuration: 3
   flickerSpeed: 0.02
   flickerMin: 0.4
-  flickerMax: 1.3
+  flickerMax: 1.4
 --- !u!1001 &258523336
 PrefabInstance:
   m_ObjectHideFlags: 0

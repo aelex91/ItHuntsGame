@@ -8,13 +8,13 @@ public class SpotlightFlicker : MonoBehaviour
 
     [Header("Cycle Settings")]
     public float stableDuration = 5f; // How long the light stays fully on
-    public float flickerDuration = 0.5f; // How long the light flickers
-    public float blackoutDuration = 1f; // How long the light is completely off
+    public float flickerDuration = 1.2f; // How long the light flickers
+    public float blackoutDuration = 3f; // How long the light is completely off
 
     [Header("Flicker Settings")]
-    public float flickerSpeed = 0.05f;
-    public float flickerMin = 1f;
-    public float flickerMax = 1.2f;
+    public float flickerSpeed = 0.02f;
+    public float flickerMin = 0.4f;
+    public float flickerMax = 1.4f;
 
     void Start()
     {
