@@ -4,20 +4,6 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
-
-    //public float wanderRadius = 10f;
-    //public float wanderTimer = 5f;
-
-    //private NavMeshAgent agent;
-    //private float timer;
-
-    //public float wanderSpeed = 2f;
-    //public float chaseSpeed = 4f;
-
-    //public Transform player;
-    //public float detectionRange = 10f;
-    //private bool isChasing = false;
-
     public float fieldOfView = 90f; 
     public LayerMask detectionMask; 
 
