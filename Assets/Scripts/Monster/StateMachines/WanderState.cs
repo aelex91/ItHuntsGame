@@ -27,12 +27,15 @@ namespace Assets.Scripts.StateMachines
             {
                 Vector3 newPos = EnemyAI.RandomNavSphere(enemy.transform.position, enemy.WanderRadius, -1);
                 enemy.Agent.SetDestination(newPos);
-                enemy.Animator.SetBool("IsWalking", false);
+
                 enemy.ResetWanderTimer();
                 return;
             }
 
-            enemy.Animator.SetBool("IsWalking", true);
+            bool isMoving = enemy.Agent.hasPath && enemy.Agent.remainingDistance > enemy.Agent.stoppingDistance;
+            enemy.Animator.SetBool("IsWalking", isMoving);
         }
+
+
     }
 }

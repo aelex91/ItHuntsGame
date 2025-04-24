@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.StateMachines;
+﻿using Assets.Scripts.Managers;
+using Assets.Scripts.StateMachines;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -18,9 +19,9 @@ namespace Assets.Scripts.Monster.StateMachines
             if (cam == null) throw new NullReferenceException(nameof(Camera));
 
             // 1. Stop player movement
-            var playerController = player.GetComponent<PlayerController>();
-            if (playerController != null)
-                playerController.enabled = false;
+            //var playerController = player.GetComponent<PlayerController>();
+            //if (playerController != null)
+            //    playerController.enabled = false;
 
             // 2. Teleport enemy in front of player
             Vector3 forward = player.forward;
@@ -34,8 +35,33 @@ namespace Assets.Scripts.Monster.StateMachines
             // 4. Trigger animation / death scene
             enemy.Animator.SetTrigger("Kill");
 
-            // 5. After delay → load end scene
-            enemy.StartCoroutine(LoadEndSceneAfterDelay(3f));
+            // 5. Teleport the enemy to a random position on the map?
+            enemy.StartCoroutine(TeleportToRandomPosition());
+
+
+            // 6. Start to wander around again
+
+            enemy.StartCoroutine(ResetState());
+
+            // 7. After delay → load end scene
+            //enemy.StartCoroutine(LoadEndSceneAfterDelay(3f));
+
+        }
+
+        private IEnumerator ResetState()
+        {
+            yield return new WaitForSeconds(2);
+            enemy.ChangeState(new WanderState(enemy));
+        }
+
+        IEnumerator TeleportToRandomPosition()
+        {
+            yield return new WaitForSeconds(2);
+
+            var randPos = UnityEngine.Random.Range(0, enemy.SpawnPositions.Length);
+
+            enemy.transform.position = enemy.SpawnPositions[randPos].transform.position;
+
         }
 
         IEnumerator ZoomCameraIn(Camera cam, float targetFOV, float duration)

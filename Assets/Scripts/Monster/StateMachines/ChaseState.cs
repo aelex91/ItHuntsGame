@@ -20,10 +20,16 @@ namespace Assets.Scripts.StateMachines
             enemy.Agent.SetDestination(enemy.Player.position);
 
             if (PlayerEscaped())
+            {
+                Debug.Log("Player Escaped");
                 enemy.ChangeState(new WanderState(enemy));
+
+            }
 
             if (CaughtPlayer())
             {
+                Debug.Log("Got the player!");
+
                 enemy.ChangeState(new KillPlayerState(enemy));
             }
         }
@@ -35,6 +41,7 @@ namespace Assets.Scripts.StateMachines
 
         private bool PlayerEscaped()
         {
+            
             return Vector3.Distance(enemy.transform.position, enemy.Player.position) > enemy.DetectionRange;
         }
 

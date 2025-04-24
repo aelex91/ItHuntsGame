@@ -1,6 +1,9 @@
+using Assets.Scripts.Managers;
 using Assets.Scripts.StateMachines;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.ProBuilder.Shapes;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -9,6 +12,7 @@ public class EnemyAI : MonoBehaviour
 
     public Transform Player;
     public float DetectionRange = 10f;
+
     public float AttackRange = 3f;
     public float WanderRadius = 10f;
     public float WanderTimer = 5f;
@@ -20,6 +24,8 @@ public class EnemyAI : MonoBehaviour
     private EnemyState currentState;
     public float wanderTimerElapsed;
 
+    public Transform[] SpawnPositions;
+
     private void Awake()
     {
         Animator = GetComponentInChildren<Animator>();
@@ -28,7 +34,7 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
-
+        SpawnPositions = GameManager.Instance.GetSpawnPositions();
         ChangeState(new WanderState(this));
     }
 
@@ -58,6 +64,15 @@ public class EnemyAI : MonoBehaviour
         return navHit.position;
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, DetectionRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, AttackRange);
+    }
+
     public bool CanSeePlayer()
     {
         Vector3 dirToPlayer = (Player.position - transform.position).normalized;
@@ -70,6 +85,7 @@ public class EnemyAI : MonoBehaviour
         if (angle > fieldOfView / 2f)
             return false;
 
+        Debug.DrawRay(transform.position + Vector3.up, dirToPlayer * DetectionRange, Color.red);
         if (Physics.Raycast(transform.position + Vector3.up, dirToPlayer, out RaycastHit hit, DetectionRange, detectionMask))
         {
             return hit.transform == Player;
@@ -77,4 +93,26 @@ public class EnemyAI : MonoBehaviour
 
         return false;
     }
+
+    public IEnumerator RotateTowards(Vector3 targetPos, System.Action onComplete = null)
+    {
+        Vector3 direction = (targetPos - transform.position);
+        direction.y = 0f; // Ignore vertical difference
+        if (direction == Vector3.zero)
+        {
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        while (Quaternion.Angle(transform.rotation, lookRotation) > 0.1f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            yield return null;
+        }
+
+        transform.rotation = lookRotation;
+        onComplete?.Invoke();
+    }
+
 }
