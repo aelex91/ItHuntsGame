@@ -8,7 +8,7 @@ namespace Assets.Scripts.Player
         private Interactable currentFocus;
         private Camera currentCamera;
 
-        public InputActionAsset inputActions;
+        private InputActionAsset inputActions;
         private InputAction interactAction;
 
         [HideInInspector]
@@ -30,39 +30,45 @@ namespace Assets.Scripts.Player
         {
             if (interactAction.IsPressed())
             {
-
-                if (currentFocus != null)
+                Ray ray = currentCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+                if (Physics.Raycast(ray, out RaycastHit hit, 3f)) // 3f = interaction distance
                 {
-                    currentFocus.Interact();
-                    IsInteracting = true;
-                    return;
+                    if (hit.collider.TryGetComponent(out Interactable interactable))
+                    {
+                        if (currentFocus != null)
+                        {
+                            currentFocus.Interact();
+                            IsInteracting = true;
+                            return;
+                        }
+                    }
                 }
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.TryGetComponent<Interactable>(out var component) == false)
+            if (other.gameObject.transform.parent.TryGetComponent<Interactable>(out var component) == false)
                 return;
 
-            if (component.CanInteract == false)
+            if (component.IsInteracting)
                 return;
 
             currentFocus = component;
-
             component.PreInteract();
         }
 
-
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.TryGetComponent<Interactable>(out var component) == false)
+            if (other.gameObject.transform.parent.TryGetComponent<Interactable>(out var component) == false)
                 return;
 
-            currentFocus = null;
-
-            component.LeaveInteraction();
-            IsInteracting = false;
+            if (currentFocus == component)
+            {
+                currentFocus = null;
+                component.LeaveInteraction();
+                IsInteracting = false;
+            }
         }
     }
 }

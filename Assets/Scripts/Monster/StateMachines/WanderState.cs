@@ -15,7 +15,6 @@ namespace Assets.Scripts.StateMachines
 
         public override void Update()
         {
-
             CheckPlayerBehind();
 
             Vector3 toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
@@ -67,8 +66,9 @@ namespace Assets.Scripts.StateMachines
             float angleToPlayer = Vector3.Angle(enemy.transform.forward, toPlayer);
             float distanceToPlayer = Vector3.Distance(enemy.Player.position, enemy.transform.position);
 
-            if (angleToPlayer > 120f && distanceToPlayer < 2f)
+            if (angleToPlayer > 120f && distanceToPlayer < 3f)
             {
+
                 enemy.LastKnownPosition = enemy.Player.position;
                 enemy.ChangeState(new ChaseState(enemy));
             }

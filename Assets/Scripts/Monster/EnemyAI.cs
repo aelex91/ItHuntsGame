@@ -51,7 +51,6 @@ public class EnemyAI : MonoBehaviour
     void Update()
     {
         currentState?.Update();
-
     }
 
    

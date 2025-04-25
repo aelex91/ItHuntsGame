@@ -33,7 +33,6 @@ namespace Assets.Scripts.StateMachines
                 {
                     PlayRoar();
                     hasRoared = true;
-                    enemy.Agent.speed = enemy.ChaseSpeed * 1.5f; // 50% faster
                     CameraShake.Instance.Shake(0.4f, 0.2f);
                 }
             }
