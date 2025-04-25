@@ -15,10 +15,35 @@ namespace Assets.Scripts.StateMachines
 
         public override void Update()
         {
-            if (enemy.CanSeePlayer())
+
+            CheckPlayerBehind();
+
+            Vector3 toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
+            float angle = Vector3.Angle(enemy.transform.forward, toPlayer);
+            float distance = Vector3.Distance(enemy.transform.position, enemy.Player.position);
+
+            bool canSee = enemy.CanSeePlayer();
+
+            if (canSee && angle > (enemy.fieldOfView / 2f) * 0.7f) // edge of vision
             {
+                enemy.ChaseTimer += Time.deltaTime;
+
+                if (enemy.ChaseTimer >= enemy.timeBeforeChase)
+                {
+                    enemy.LastKnownPosition = enemy.Player.position;
+                    enemy.ChangeState(new ChaseState(enemy));
+                    enemy.ChaseTimer = 0f;
+                }
+            }
+            else if (canSee) // clearly in front
+            {
+                enemy.LastKnownPosition = enemy.Player.position;
                 enemy.ChangeState(new ChaseState(enemy));
-                return;
+                enemy.ChaseTimer = 0f;
+            }
+            else
+            {
+                enemy.ChaseTimer = 0f;
             }
 
             enemy.wanderTimerElapsed += Time.deltaTime;
@@ -36,6 +61,18 @@ namespace Assets.Scripts.StateMachines
             enemy.Animator.SetBool("IsWalking", isMoving);
         }
 
+        private void CheckPlayerBehind()
+        {
+            Vector3 toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
+            float angleToPlayer = Vector3.Angle(enemy.transform.forward, toPlayer);
+            float distanceToPlayer = Vector3.Distance(enemy.Player.position, enemy.transform.position);
+
+            if (angleToPlayer > 120f && distanceToPlayer < 2f)
+            {
+                enemy.LastKnownPosition = enemy.Player.position;
+                enemy.ChangeState(new ChaseState(enemy));
+            }
+        }
 
     }
 }

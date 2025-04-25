@@ -1,14 +1,20 @@
 using Assets.Scripts.Managers;
+using Assets.Scripts.Monster.StateMachines;
 using Assets.Scripts.StateMachines;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.ProBuilder.Shapes;
 
 public class EnemyAI : MonoBehaviour
 {
-    public float fieldOfView = 90f; 
-    public LayerMask detectionMask; 
+
+    public AudioSource AudioSource;
+    public AudioClip RoarClip;
+
+    public Vector3 LastKnownPosition;
+
+    public float fieldOfView = 90f;
+    public LayerMask detectionMask;
 
     public Transform Player;
     public float DetectionRange = 10f;
@@ -16,7 +22,7 @@ public class EnemyAI : MonoBehaviour
     public float AttackRange = 3f;
     public float WanderRadius = 10f;
     public float WanderTimer = 5f;
-    public float ChaseSpeed =4.5f;
+    public float ChaseSpeed = 4.5f;
     public float WanderSpeed = 2f;
     public Animator Animator;
     public NavMeshAgent Agent;
@@ -24,12 +30,16 @@ public class EnemyAI : MonoBehaviour
     private EnemyState currentState;
     public float wanderTimerElapsed;
 
+    public float timeBeforeChase = 1.5f;
+    public float ChaseTimer = 0f;
+
     public Transform[] SpawnPositions;
 
     private void Awake()
     {
         Animator = GetComponentInChildren<Animator>();
         Agent = GetComponent<NavMeshAgent>();
+        AudioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -41,7 +51,10 @@ public class EnemyAI : MonoBehaviour
     void Update()
     {
         currentState?.Update();
+
     }
+
+   
 
     public void ChangeState(EnemyState newState)
     {
@@ -86,7 +99,7 @@ public class EnemyAI : MonoBehaviour
             return false;
 
         Debug.DrawRay(transform.position + Vector3.up, dirToPlayer * DetectionRange, Color.red);
-        if (Physics.Raycast(transform.position + Vector3.up, dirToPlayer, out RaycastHit hit, DetectionRange, detectionMask))
+        if (Physics.SphereCast(transform.position + Vector3.up, 0.5f, dirToPlayer, out RaycastHit hit, DetectionRange, detectionMask))
         {
             return hit.transform == Player;
         }
