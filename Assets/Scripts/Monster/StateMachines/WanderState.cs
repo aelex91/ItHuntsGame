@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Extensions;
+using UnityEngine;
 
 namespace Assets.Scripts.StateMachines
 {
@@ -10,41 +11,35 @@ namespace Assets.Scripts.StateMachines
         {
             enemy.Agent.speed = enemy.WanderSpeed;
             enemy.ResetWanderTimer();
-            Debug.Log("Lost sight of player — resuming wander.");
         }
 
         public override void Update()
         {
+            //Om spelaren är inom detection range men bakom monstret (men movementtype är running, då bör monstret springa efter spelaren.)
+
+            if (enemy.PlayerController.IsRunningInsideEnemyDetectionRange(enemy))
+            {
+                Debug.Log("Player is running inside detection range!!");
+                enemy.ChangeState(new ChaseState(enemy));
+                return;
+            }
+
             CheckPlayerBehind();
 
-            Vector3 toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
-            float angle = Vector3.Angle(enemy.transform.forward, toPlayer);
-            float distance = Vector3.Distance(enemy.transform.position, enemy.Player.position);
+            var toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
+            var angle = Vector3.Angle(enemy.transform.forward, toPlayer);
+            var distance = Vector3.Distance(enemy.transform.position, enemy.Player.position);
 
-            bool canSee = enemy.CanSeePlayer();
 
-            if (canSee && angle > (enemy.fieldOfView / 2f) * 0.7f) // edge of vision
+            if (enemy.CanSeePlayer()) // clearly in front
             {
-                enemy.ChaseTimer += Time.deltaTime;
-
-                if (enemy.ChaseTimer >= enemy.timeBeforeChase)
-                {
-                    enemy.LastKnownPosition = enemy.Player.position;
-                    enemy.ChangeState(new ChaseState(enemy));
-                    enemy.ChaseTimer = 0f;
-                }
-            }
-            else if (canSee) // clearly in front
-            {
+                Debug.Log("Can See Player -> Chasing");
                 enemy.LastKnownPosition = enemy.Player.position;
                 enemy.ChangeState(new ChaseState(enemy));
-                enemy.ChaseTimer = 0f;
-            }
-            else
-            {
-                enemy.ChaseTimer = 0f;
+
             }
 
+            enemy.ChaseTimer = 0f;
             enemy.wanderTimerElapsed += Time.deltaTime;
 
             if (enemy.wanderTimerElapsed >= enemy.WanderTimer)
@@ -62,13 +57,13 @@ namespace Assets.Scripts.StateMachines
 
         private void CheckPlayerBehind()
         {
-            Vector3 toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
-            float angleToPlayer = Vector3.Angle(enemy.transform.forward, toPlayer);
-            float distanceToPlayer = Vector3.Distance(enemy.Player.position, enemy.transform.position);
+            var toPlayer = (enemy.Player.position - enemy.transform.position).normalized;
+            var angleToPlayer = Vector3.Angle(enemy.transform.forward, toPlayer);
+            var distanceToPlayer = Vector3.Distance(enemy.Player.position, enemy.transform.position);
 
             if (angleToPlayer > 120f && distanceToPlayer < 3f)
             {
-
+                //Debug.Log("Player is behind me, lets catch him!");
                 enemy.LastKnownPosition = enemy.Player.position;
                 enemy.ChangeState(new ChaseState(enemy));
             }

@@ -1,6 +1,7 @@
+using Assets.Scripts.Extensions;
 using Assets.Scripts.Managers;
-using Assets.Scripts.Monster.StateMachines;
 using Assets.Scripts.StateMachines;
+using NUnit.Framework;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -13,10 +14,12 @@ public class EnemyAI : MonoBehaviour
 
     public Vector3 LastKnownPosition;
 
-    public float fieldOfView = 90f;
+    public float fieldOfView = 130f;
     public LayerMask detectionMask;
 
     public Transform Player;
+
+    public PlayerController PlayerController;
     public float DetectionRange = 10f;
 
     public float AttackRange = 3f;
@@ -44,6 +47,9 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
+        if (PlayerController == null)
+            PlayerController = Player.GetComponent<PlayerController>();
+
         SpawnPositions = GameManager.Instance.GetSpawnPositions();
         ChangeState(new WanderState(this));
     }
@@ -52,8 +58,6 @@ public class EnemyAI : MonoBehaviour
     {
         currentState?.Update();
     }
-
-   
 
     public void ChangeState(EnemyState newState)
     {
@@ -87,19 +91,20 @@ public class EnemyAI : MonoBehaviour
 
     public bool CanSeePlayer()
     {
-        Vector3 dirToPlayer = (Player.position - transform.position).normalized;
-        float distance = Vector3.Distance(transform.position, Player.position);
+        var dirToPlayer = (Player.position - transform.position).normalized;
 
-        if (distance > DetectionRange)
+        var inside = this.transform.InsideRadius(Player.transform, DetectionRange);
+
+        if (inside == false)
             return false;
 
-        float angle = Vector3.Angle(transform.forward, dirToPlayer);
+        var angle = Vector3.Angle(transform.forward, dirToPlayer);
         if (angle > fieldOfView / 2f)
             return false;
 
-        Debug.DrawRay(transform.position + Vector3.up, dirToPlayer * DetectionRange, Color.red);
         if (Physics.SphereCast(transform.position + Vector3.up, 0.5f, dirToPlayer, out RaycastHit hit, DetectionRange, detectionMask))
         {
+            Debug.Log($"SphereCast hit: {hit.transform.name} on layer {LayerMask.LayerToName(hit.transform.gameObject.layer)}");
             return hit.transform == Player;
         }
 

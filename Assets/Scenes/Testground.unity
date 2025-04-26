@@ -2013,7 +2013,7 @@ MonoBehaviour:
   fieldOfView: 90
   detectionMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 4294967295
   Player: {fileID: 1346068235}
   DetectionRange: 10
   AttackRange: 2.13

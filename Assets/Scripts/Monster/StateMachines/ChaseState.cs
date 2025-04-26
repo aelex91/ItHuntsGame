@@ -13,7 +13,6 @@ namespace Assets.Scripts.StateMachines
 
         public override void Enter()
         {
-
             enemy.Agent.speed = enemy.ChaseSpeed;
             enemy.Animator.SetBool("IsChasing", true);
             enemy.Animator.SetBool("IsWalking", false);
@@ -49,14 +48,14 @@ namespace Assets.Scripts.StateMachines
             if (PlayerEscaped())
             {
                 enemy.LastKnownPosition = enemy.Player.position;
-                Debug.Log("Player Escaped");
+                //Debug.Log("Player Escaped");
                 enemy.ChangeState(new SearchState(enemy));
 
             }
 
             if (CaughtPlayer())
             {
-                Debug.Log("Got the player!");
+                //Debug.Log("Got the player!");
 
                 enemy.ChangeState(new KillPlayerState(enemy));
             }

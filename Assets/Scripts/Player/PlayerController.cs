@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Enums;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
@@ -11,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private InputAction crouchAction;
     private InputAction jumpAction;
 
+
+    public MovementType MovementType;
 
     [Header("Crouch Camera")]
     public float standingCamHeight = 1.6f;
@@ -69,13 +72,25 @@ public class PlayerController : MonoBehaviour
 
     void HandleMovement()
     {
+
+
+
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         float moveX = moveInput.x;
         float moveZ = moveInput.y;
 
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
+        var move = transform.right * moveX + transform.forward * moveZ;
 
-        bool isGrounded = controller.isGrounded;
+
+        MovementType = moveSpeed == crouchSpeed
+         ? MovementType.Croaching
+         : move == Vector3.zero 
+         ? MovementType.StandingStill
+         : MovementType.Running;
+
+        Debug.Log("current movementype: " + MovementType);
+
+        var isGrounded = controller.isGrounded;
 
         if (isGrounded && jumpAction.IsPressed())
         {
@@ -94,6 +109,9 @@ public class PlayerController : MonoBehaviour
 
         move.y = verticalVelocity;
 
+        if (move == Vector3.zero)
+            MovementType = MovementType.StandingStill;
+
         controller.Move(move * moveSpeed * Time.deltaTime);
 
         // ⬇️ Prevent sticky ceiling effect
@@ -107,6 +125,8 @@ public class PlayerController : MonoBehaviour
     void HandleCrouch()
     {
         bool isCrouching = crouchAction.IsPressed();
+
+        Debug.Log("iscrouch?" + isCrouching);
 
         controller.height = isCrouching ? crouchHeight : standingHeight;
         controller.center = new Vector3(0, controller.height / 2f - controller.skinWidth, 0);

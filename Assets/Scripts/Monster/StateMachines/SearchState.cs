@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Assets.Scripts.Extensions;
 using UnityEngine;
 
 namespace Assets.Scripts.StateMachines
@@ -29,15 +24,27 @@ namespace Assets.Scripts.StateMachines
             {
                 searchTimer += Time.deltaTime;
 
+                if (enemy.PlayerController.IsRunningInsideEnemyDetectionRange(enemy)){
+
+                    Debug.Log("Player is running inside detection range!!");
+                    enemy.ChangeState(new ChaseState(enemy));
+                    return;
+                }
+
                 if (searchTimer >= maxSearchTime)
                 {
                     enemy.ChangeState(new WanderState(enemy));
+                    return;
                 }
             }
 
-            // Player found again
-            if (Vector3.Distance(enemy.transform.position, enemy.Player.position) < enemy.DetectionRange)
+            // Player found after searching
+            if (enemy.transform.InsideRadius(enemy.Player, enemy.DetectionRange))
             {
+                if (enemy.CanSeePlayer() == false)
+                    return;
+
+                Debug.Log("In Searchstate -> But player is inside detectionrange");
                 enemy.ChangeState(new ChaseState(enemy));
             }
         }

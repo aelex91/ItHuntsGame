@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Managers
@@ -8,7 +7,7 @@ namespace Assets.Scripts.Managers
     {
         public static GameManager Instance;
 
-        private Transform[] SpawnPositions;
+        private static Transform[] SpawnPositions;
 
         private void Awake()
         {
@@ -24,7 +23,6 @@ namespace Assets.Scripts.Managers
 
         public Transform[] GetSpawnPositions()
         {
-            Debug.Log("getting stuff");
             if (SpawnPositions == null)
             {
                 var gameObjects = GameObject.FindGameObjectsWithTag("SpawnPosition");
@@ -33,8 +31,6 @@ namespace Assets.Scripts.Managers
                     .Select(x => x.transform)
                     .ToArray();
             } 
-
-            Debug.Log("do we have spawn positions?" + SpawnPositions.Any());
 
             return SpawnPositions;
         }
